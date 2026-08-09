@@ -1,11 +1,18 @@
+import random
+
+
 def simulate_semester(
     starting_balance: float,
     hourly_wage: float,
     hours_per_week: float,
     semester_weeks: int,
     weekly_spending: float,
+    spending_variation: float = 0.0,
+    seed: int | None = None,
 ) -> list[dict]:
     """Simulate a student's balance week by week."""
+
+    rng = random.Random(seed)
 
     balance = starting_balance
     weekly_income = hourly_wage * hours_per_week
@@ -20,13 +27,16 @@ def simulate_semester(
     ]
 
     for week in range(1, semester_weeks + 1):
-        balance = balance + weekly_income - weekly_spending
+        variation = rng.uniform(-spending_variation, spending_variation)
+        actual_spending = weekly_spending * (1 + variation)
+
+        balance = balance + weekly_income - actual_spending
 
         history.append(
             {
                 "week": week,
                 "income": weekly_income,
-                "spending": weekly_spending,
+                "spending": actual_spending,
                 "balance": balance,
             }
         )
