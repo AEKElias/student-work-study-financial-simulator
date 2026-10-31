@@ -63,6 +63,26 @@ c.metric("Monthly surplus", f"${monthly['monthly_surplus']:,.2f}")
 d.metric("Semester ending balance", f"${semester['ending_balance']:,.2f}")
 st.caption("These are estimates before taxes. Monthly spending is converted to weekly spending using 52 weeks per year.")
 
+st.subheader("Set a savings goal")
+goal_balance = st.number_input(
+    "Target balance at the end of the semester ($)",
+    min_value=1.0,
+    value=1500.0,
+    step=100.0,
+)
+ending_balance = semester["ending_balance"]
+goal_progress = min(max(ending_balance / goal_balance, 0.0), 1.0)
+st.progress(goal_progress, text=f"{goal_progress:.0%} of your target balance")
+if ending_balance >= goal_balance:
+    st.success(
+        f"You're on track! The forecast is ${ending_balance - goal_balance:,.2f} above your target."
+    )
+else:
+    st.info(
+        f"Your forecast is ${goal_balance - ending_balance:,.2f} below your target."
+    )
+st.caption("Goal progress uses your projected ending balance, including the money you already have.")
+
 st.subheader("Where your money goes")
 expense_df = pd.DataFrame(
     [{"Category": name, "Amount ($)": amount} for name, amount in categories.items()]
