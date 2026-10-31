@@ -1,6 +1,7 @@
 """Streamlit dashboard for the existing student finance simulator."""
 
 import streamlit as st
+import pandas as pd
 
 from src.budget import monthly_budget_summary
 from src.finance import calculate_semester_finances
@@ -61,6 +62,12 @@ b.metric("Monthly expenses", f"${monthly['monthly_expenses']:,.2f}")
 c.metric("Monthly surplus", f"${monthly['monthly_surplus']:,.2f}")
 d.metric("Semester ending balance", f"${semester['ending_balance']:,.2f}")
 st.caption("These are estimates before taxes. Monthly spending is converted to weekly spending using 52 weeks per year.")
+
+st.subheader("Where your money goes")
+expense_df = pd.DataFrame(
+    [{"Category": name, "Amount ($)": amount} for name, amount in categories.items()]
+)
+st.bar_chart(expense_df, x="Category", y="Amount ($)", horizontal=True)
 
 st.subheader("Estimated balance by week")
 st.line_chart({"Balance ($)": [round(week["balance"], 2) for week in history]})
