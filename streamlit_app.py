@@ -9,6 +9,7 @@ from src.monte_carlo import run_monte_carlo
 from src.risk_analysis import analyze_results
 from src.simulation import simulate_semester
 from src.scenarios import compare_work_schedules
+from src.reporting import build_financial_report_csv
 
 st.set_page_config(page_title="Student Work-Study Planner", page_icon="💵", layout="wide")
 st.title("Student Budget & Work-Study Planner")
@@ -120,6 +121,27 @@ st.bar_chart(expense_df, x="Category", y="Amount ($)", horizontal=True)
 st.subheader("Estimated balance by week")
 st.line_chart({"Balance ($)": [round(week["balance"], 2) for week in history]})
 st.caption("The chart begins at week 0 (your starting balance). It assumes stable hours and spending, with no emergencies.")
+
+st.subheader("Download your financial report")
+report_csv = build_financial_report_csv(
+    starting_balance=starting_balance,
+    hourly_wage=hourly_wage,
+    hours_per_week=hours_per_week,
+    semester_weeks=semester_weeks,
+    categories=categories,
+    monthly=monthly,
+    semester=semester,
+    goal_balance=goal_balance,
+    comparisons=comparisons,
+    history=history,
+)
+st.download_button(
+    "Download CSV report",
+    data=report_csv,
+    file_name="student_budget_report.csv",
+    mime="text/csv",
+)
+st.caption("Open this CSV in Excel or Google Sheets. It contains your current forecast, but not optional risk simulation results.")
 
 with st.expander("Optional: Explore missed shifts and unexpected expenses"):
     spending_variation_pct = st.slider("Weekly spending variation (%)", 0, 100, 20, 5)
