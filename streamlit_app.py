@@ -8,6 +8,7 @@ from src.finance import calculate_semester_finances
 from src.monte_carlo import run_monte_carlo
 from src.risk_analysis import analyze_results
 from src.simulation import simulate_semester
+from src.scenarios import compare_work_schedules
 
 st.set_page_config(page_title="Student Work-Study Planner", page_icon="💵", layout="wide")
 st.title("Student Budget & Work-Study Planner")
@@ -82,6 +83,33 @@ else:
         f"Your forecast is ${goal_balance - ending_balance:,.2f} below your target."
     )
 st.caption("Goal progress uses your projected ending balance, including the money you already have.")
+
+st.subheader("Compare work schedules")
+st.write("See how working 5, 10, or 15 hours per week would change your semester budget.")
+comparisons = compare_work_schedules(
+    starting_balance=starting_balance,
+    hourly_wage=hourly_wage,
+    semester_weeks=semester_weeks,
+    weekly_spending=monthly["weekly_expenses"],
+    hours_options=(5.0, 10.0, 15.0, float(hours_per_week)),
+)
+comparison_df = pd.DataFrame(
+    [
+        {
+            "Hours per week": f"{item['hours_per_week']:g}h",
+            "Gross semester income ($)": round(item["total_income"], 2),
+            "Ending balance ($)": round(item["ending_balance"], 2),
+            "Meets your goal?": "Yes" if item["ending_balance"] >= goal_balance else "No",
+        }
+        for item in comparisons
+    ]
+)
+st.bar_chart(comparison_df, x="Hours per week", y="Ending balance ($)")
+st.dataframe(comparison_df, hide_index=True)
+st.caption(
+    "This comparison holds your hourly pay and expenses constant. "
+    "Income is before taxes, and no missed shifts or emergency costs are included."
+)
 
 st.subheader("Where your money goes")
 expense_df = pd.DataFrame(
